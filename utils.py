@@ -95,7 +95,7 @@ def create_token_index_mappings(texts, sentence_tokenized_input=False):
                 for token in sent:
                     c = token_counts.get(token, 0) + 1
                     token_counts[token] = c
-                    print('token_counts[token] = ', token_counts[token])
+                    print('token_counts[', token, '] = ', token_counts[token])
     else:
         for doc in texts:
             for token in doc:
