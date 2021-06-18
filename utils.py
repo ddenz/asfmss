@@ -112,7 +112,9 @@ def create_token_index_mappings(texts, sentence_tokenized_input=False):
     return token_counts, index2token, token2index
 
 
-def load_data():
+def load_data(test=False):
+    if test:
+        return pd.read_csv(CODING_DIR + '/asfmss_dummy_data.csv')
     return pd.read_csv(CODING_DIR + '/Quest_ASFMSS_all_data.csv')
 
 
