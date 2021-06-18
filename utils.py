@@ -14,13 +14,18 @@ from gensim.models.keyedvectors import KeyedVectors
 
 from sklearn.preprocessing import LabelBinarizer
 
+env = 'local'
 
-NORM_DIR = '/Users/Andre/workspace/PycharmProjects/asfmss/Quest ASFMSS/Data/Audio/Normalized'
-CLEAN_DIR = '/Users/Andre/workspace/PycharmProjects/asfmss/Quest ASFMSS/Data/Audio/Cleaned'
-FEATS_DIR = '/Users/Andre/workspace/PycharmProjects/asfmss/Quest ASFMSS/Data/Audio/Cleaned/Features'
-CODING_DIR = '/Users/Andre/workspace/PycharmProjects/asfmss/Quest ASFMSS/Data/Coding'
-TEXT_DIR = '/Users/Andre/workspace/PycharmProjects/asfmss/Quest ASFMSS/Data/Transcripts/TXT/Cleaned'
-GENSIM_DATA_DIR = '/Users/andre/gensim-data/'
+if env == 'local':
+    NORM_DIR = '/Users/Andre/workspace/PycharmProjects/asfmss/Quest ASFMSS/Data/Audio/Normalized'
+    CLEAN_DIR = '/Users/Andre/workspace/PycharmProjects/asfmss/Quest ASFMSS/Data/Audio/Cleaned'
+    FEATS_DIR = '/Users/Andre/workspace/PycharmProjects/asfmss/Quest ASFMSS/Data/Audio/Cleaned/Features'
+    CODING_DIR = '/Users/Andre/workspace/PycharmProjects/asfmss/Quest ASFMSS/Data/Coding'
+    TEXT_DIR = '/Users/Andre/workspace/PycharmProjects/asfmss/Quest ASFMSS/Data/Transcripts/TXT/Cleaned'
+    GENSIM_DATA_DIR = '~/gensim-data/'
+else:
+    CODING_DIR = './data'
+    GENSIM_DATA_DIR = '~/gensim-data/'
 
 SEED = 7
 UNK = '<UNKNOWN>'
@@ -226,4 +231,3 @@ if __name__ == '__main__':
     print(y)
     print(X.shape)
     print(y.shape)
-    
