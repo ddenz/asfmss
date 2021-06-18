@@ -6,7 +6,6 @@ import os
 import re
 import spacy
 
-
 from keras.preprocessing.sequence import pad_sequences
 
 from gensim.scripts.glove2word2vec import glove2word2vec
@@ -22,10 +21,10 @@ if env == 'local':
     FEATS_DIR = '/Users/Andre/workspace/PycharmProjects/asfmss/Quest ASFMSS/Data/Audio/Cleaned/Features'
     CODING_DIR = '/Users/Andre/workspace/PycharmProjects/asfmss/Quest ASFMSS/Data/Coding'
     TEXT_DIR = '/Users/Andre/workspace/PycharmProjects/asfmss/Quest ASFMSS/Data/Transcripts/TXT/Cleaned'
-    GENSIM_DATA_DIR = '~/gensim-data/'
 else:
     CODING_DIR = './data'
-    GENSIM_DATA_DIR = '~/gensim-data/'
+
+GENSIM_DATA_DIR = '~/gensim-data/'
 
 SEED = 7
 UNK = '<UNKNOWN>'
@@ -93,7 +92,7 @@ def create_token_index_mappings(texts, sentence_tokenized_input=False):
     if sentence_tokenized_input:
         for doc in texts:
             for sent in doc:
-                for token in doc:
+                for token in sent:
                     c = token_counts.get(token, 0) + 1
                     token_counts[token] = c
     else:
@@ -225,7 +224,7 @@ def spacy_sentence_tokenize(doc):
 if __name__ == '__main__':
     #df = load_data_to_dataframe()
     #df.to_csv(CODING_DIR + '/Quest_ASFMSS_all_data.csv', encoding='utf-8', index=False)
-    X, y, embedding_matrix = prepare_sequential('/Users/andre/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=True)
+    X, y, embedding_matrix = prepare_sequential(GENSIM_DATA_DIR + '/glove.6B/glove.6B.300d.txt', sentence_tokenize=True)
 
     print(X)
     print(y)
