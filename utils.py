@@ -221,3 +221,9 @@ if __name__ == '__main__':
     #df = load_data_to_dataframe()
     #df.to_csv(CODING_DIR + '/Quest_ASFMSS_all_data.csv', encoding='utf-8', index=False)
     X, y, embedding_matrix = prepare_sequential('/Users/andre/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=True)
+
+    print(X)
+    print(y)
+    print(X.shape)
+    print(y.shape)
+    
