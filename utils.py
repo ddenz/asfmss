@@ -13,7 +13,7 @@ from gensim.models.keyedvectors import KeyedVectors
 
 from sklearn.preprocessing import LabelBinarizer
 
-env = 'local'
+env = 'remote'
 
 if env == 'local':
     NORM_DIR = '/Users/Andre/workspace/PycharmProjects/asfmss/Quest ASFMSS/Data/Audio/Normalized'
