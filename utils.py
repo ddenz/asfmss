@@ -126,10 +126,10 @@ def load_embeddings(emb_path):
     return model
 
 
-def prepare_sequential(emb_path, sentence_tokenize=False):
+def prepare_sequential(emb_path, sentence_tokenize=False, test=False):
     logging.info('Preparing sequential data (' + emb_path + ')...')
 
-    df_data = load_data()
+    df_data = load_data(test=test)
 
     texts = []
 
@@ -226,7 +226,7 @@ def spacy_sentence_tokenize(doc):
 if __name__ == '__main__':
     #df = load_data_to_dataframe()
     #df.to_csv(CODING_DIR + '/Quest_ASFMSS_all_data.csv', encoding='utf-8', index=False)
-    X, y, embedding_matrix = prepare_sequential(GENSIM_DATA_DIR + '/glove.6B/glove.6B.300d.txt', sentence_tokenize=True)
+    X, y, embedding_matrix = prepare_sequential(GENSIM_DATA_DIR + '/glove.6B/glove.6B.300d.txt', sentence_tokenize=True, test=True)
 
     print(X)
     print(y)
