@@ -39,7 +39,7 @@ def build_model(embedding_matrix):
 
 
 if __name__ == '__main__':
-    X, y, emb_matrix = prepare_sequential('/Users/andre/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=True)
+    X, y, emb_matrix = prepare_sequential('~/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=True)
 
     # 60-20-20 split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=SEED)
