@@ -95,7 +95,6 @@ def create_token_index_mappings(texts, sentence_tokenized_input=False):
                 for token in sent:
                     c = token_counts.get(token, 0) + 1
                     token_counts[token] = c
-                    print('token_counts[', token, '] = ', token_counts[token])
     else:
         for doc in texts:
             for token in doc:
@@ -135,10 +134,7 @@ def prepare_sequential(emb_path, sentence_tokenize=False, test=False):
     texts = []
 
     for doc in nlp.pipe(df_data.text):
-        if sentence_tokenize:
-            texts.append(spacy_sentence_tokenize(doc))
-        else:
-            texts.append(spacy_tokenize(doc))
+        texts.append(spacy_tokenize(doc, sentence_tokenize=sentence_tokenize))
 
     embedding_vectors = load_embeddings(emb_path)
 
@@ -183,18 +179,10 @@ def prepare_sequential(emb_path, sentence_tokenize=False, test=False):
 
 
 def process_token(token):
-    if token.is_punct:
-        return []
-    elif token.is_space:
-        return []
-    elif token.like_url:
-        return ['__URL__']
+    if token.like_url:
+        return '__URL__'
     elif token.like_num:
-        return ['__NUM__']
-    elif re.search('.+_person_.+', token.lower_) is not None:
-        return [token for token in token.lower_.split('_person_') if token != '']
-    elif ',' in token.lower_:
-        return [token for token in token.lower_.split(',') if token != '']
+        return '__NUM__'
     else:
         form = token.lower_
         form = re.sub('[\!\"#\$%&\(\)\*\+,\./:;<=>\?@\[\\]\^_`\{\|\}\~]+', '', form)
@@ -203,33 +191,15 @@ def process_token(token):
         return form
 
 
-def spacy_tokenize(doc):
+def spacy_tokenize(doc, sentence_tokenize=False):
     if isinstance(doc, str):
         doc = nlp(doc)
-    tokens = []
-    for token in doc:
-        tokens += process_token(token)
-    return tokens
-
-
-def spacy_sentence_tokenize(doc):
-    if isinstance(doc, str):
-        doc = nlp(doc)
-    sents = []
-    for sent in doc.sents:
-        tokens = []
-        for token in sent:
-            tokens += process_token(token)
-        sents.append(tokens)
-    return sents
+    if sentence_tokenize:
+        return [[process_token(token) for token in sent if (not token.is_punct or token.is_space)] for sent in doc.sents]
+    return [process_token(token) for token in doc]
 
 
 if __name__ == '__main__':
     #df = load_data_to_dataframe()
     #df.to_csv(CODING_DIR + '/Quest_ASFMSS_all_data.csv', encoding='utf-8', index=False)
-    X, y, embedding_matrix = prepare_sequential(GENSIM_DATA_DIR + '/glove.6B/glove.6B.300d.txt', sentence_tokenize=True, test=True)
-
-    print(X)
-    print(y)
-    print(X.shape)
-    print(y.shape)
+    X, y, embedding_matrix = prepare_sequential(GENSIM_DATA_DIR + '/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=True)
