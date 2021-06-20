@@ -27,7 +27,7 @@ def build_model(embedding_matrix):
     bilstm = Bidirectional(LSTM(300, activation='sigmoid', recurrent_dropout=0.2, recurrent_activation='sigmoid',
                                                 return_sequences=True))(emb)
     do1 = Dropout(0.2)(bilstm)
-    output = Dense(embedding_matrix[0].shape[0])(do1)
+    output = Dense(1)(do1)
 
     model = Model(inputs=inputs, outputs=output)
     model.compile(optimizer=Adam(lr=0.001), loss='categorical_crossentropy') # added this
