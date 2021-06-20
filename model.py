@@ -25,7 +25,7 @@ def build_model(embedding_matrix):
     emb = Embedding(input_dim=embedding_matrix.shape[0], output_dim=embedding_matrix[0].shape[0],
                     input_length=MAX_LENGTH, weights=[embedding_matrix], trainable=False)(inputs)
     bilstm = Bidirectional(LSTM(300, activation='sigmoid', recurrent_dropout=0.2, recurrent_activation='sigmoid',
-                                                return_sequences=True))(emb)
+                                                return_sequences=False))(emb)
     do1 = Dropout(0.2)(bilstm)
     output = Dense(1)(do1)
 
