@@ -32,7 +32,7 @@ def build_model(embedding_matrix):
     output = Dense(1)(do1)
 
     model = Model(inputs=inputs, outputs=output)
-    model.compile(optimizer=Adam(lr=0.001, loss='categorical_crossentropy'))
+    model.compile(optimizer=Adam(lr=0.001), loss='categorical_crossentropy')
 
     return model
 
