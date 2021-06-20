@@ -21,7 +21,7 @@ class SentenceEncoder(Sequential):
 
 
 def build_model(embedding_matrix):
-    inputs = Input(shape=(embedding_matrix[0].shape[0]))
+    inputs = Input(shape=MAX_LENGTH)
     emb = Embedding(input_dim=embedding_matrix.shape[0], output_dim=embedding_matrix[0].shape[0],
                     input_length=MAX_LENGTH, weights=[embedding_matrix], trainable=False)(inputs)
     bilstm = Bidirectional(LSTM(300, activation='sigmoid', recurrent_dropout=0.2, recurrent_activation='sigmoid',
