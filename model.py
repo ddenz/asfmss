@@ -2,20 +2,18 @@ from keras.layers import Attention, Bidirectional, Conv1D, Dense, Embedding, Dro
 from keras.models import Sequential, Model
 from keras.optimizers import Adam
 from utils import prepare_sequential
-from utils import SEED, LABELS
+from utils import SEED, LABELS, MAX_LENGTH
 from sklearn.model_selection import train_test_split
-
-MAX_LENGTH = 200
 
 
 class SentenceEncoder(Sequential):
-    def __init__(self, emb_matrix):
+    def __init__(self, embedding_matrix):
         super().__init__()
-        self.emb_matrix = emb_matrix
+        self.embedding_matrix = embedding_matrix
 
     def build_model(self, optimizer=Adam(lr=0.001), loss='categorical_crossentropy'):
         # input_dim = vocab size, output_dim = embedding size, input_length = sentence length
-        self.add(Embedding(input_dim=self.emb_matrix.shape[0], output_dim=self.emb_matrix[0].shape[0],
+        self.add(Embedding(input_dim=self.embedding_matrix.shape[0], output_dim=self.embedding_matrix[0].shape[0],
                            input_length=MAX_LENGTH, weights=[self.emb_matrix], trainable=False))
         self.add(Conv1D(filters=64, kernel_size=7))
         self.add(MaxPooling1D())
@@ -23,7 +21,7 @@ class SentenceEncoder(Sequential):
 
 
 def build_model(embedding_matrix):
-    inputs = Input(shape=(embedding_matrix.shape[0]))
+    inputs = Input(shape=(embedding_matrix[0].shape[0]))
     emb = Embedding(input_dim=embedding_matrix.shape[0], output_dim=embedding_matrix[0].shape[0],
                     input_length=MAX_LENGTH, weights=[embedding_matrix], trainable=False)(inputs)
     bilstm = Bidirectional(LSTM(300, activation='sigmoid', recurrent_dropout=0.2, recurrent_activation='sigmoid',
