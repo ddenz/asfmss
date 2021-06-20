@@ -146,7 +146,7 @@ def prepare_sequential(emb_path, sentence_tokenize=False, test=False):
         emb_map[w] = embedding_vectors.get_vector(w)
 
     vocab_size = len(token_counts)
-    embed_len = embedding_vectors['help'].shape[0]
+    embed_len = embedding_vectors[list(emb_map.keys())[0]].shape[0]
     embedding_matrix = np.zeros((vocab_size + 1, embed_len))
 
     # initialize the embedding matrix
@@ -202,4 +202,4 @@ def spacy_tokenize(doc, sentence_tokenize=False):
 if __name__ == '__main__':
     #df = load_data_to_dataframe()
     #df.to_csv(CODING_DIR + '/Quest_ASFMSS_all_data.csv', encoding='utf-8', index=False)
-    X, y, embedding_matrix = prepare_sequential(GENSIM_DATA_DIR + '/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=True)
+    X, y, emb_matrix = prepare_sequential(GENSIM_DATA_DIR + '/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=True)
