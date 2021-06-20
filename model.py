@@ -21,13 +21,13 @@ class SentenceEncoder(Sequential):
 
 
 def build_model(embedding_matrix):
-    inputs = Input(shape=MAX_LENGTH)
+    inputs = Input(shape=(MAX_LENGTH,))
     emb = Embedding(input_dim=embedding_matrix.shape[0], output_dim=embedding_matrix[0].shape[0],
                     input_length=MAX_LENGTH, weights=[embedding_matrix], trainable=False)(inputs)
     bilstm = Bidirectional(LSTM(300, activation='sigmoid', recurrent_dropout=0.2, recurrent_activation='sigmoid',
                                                 return_sequences=True))(emb)
     do1 = Dropout(0.2)(bilstm)
-    output = Dense(1)(do1)
+    output = Dense(embedding_matrix[0].shape[0])(do1)
 
     model = Model(inputs=inputs, outputs=output)
     model.compile(optimizer=Adam(lr=0.001), loss='categorical_crossentropy') # added this
