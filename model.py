@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 from keras.layers import Attention, Bidirectional, Conv1D, Dense, Embedding, Dropout, Input, LSTM, MaxPooling1D, TimeDistributed
 from keras.models import Model
 from keras.optimizers import Adam
@@ -29,8 +31,11 @@ if __name__ == '__main__':
     #X_train, X_dev, y_train, y_dev = train_test_split(X_train, y_train, test_size=0.25, random_state=SEED)
 
     models = {}
+    m = build_model(emb_matrix)
     for label in LABELS:
-        m = build_model(emb_matrix)
-        history = m.fit(X_train, y_train[label])
-        models[label] = [m, history]
-        print(history)
+        history = m.fit(X_train, y_train[label], epochs=10)
+        for metric in history.history.keys():
+            plt.plot(history.history[metric])
+        fname = 'model_' + label + '.png'
+        plt.savefig(fname)
+        print('Plot:', fname)
