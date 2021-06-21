@@ -36,6 +36,6 @@ if __name__ == '__main__':
         history = m.fit(X_train, y_train[label], epochs=10)
         for metric in history.history.keys():
             plt.plot(history.history[metric])
-        fname = 'model_' + label + '.png'
-        plt.savefig(fname)
-        print('Plot:', fname)
+            fname = 'model_' + label + '.png'
+            plt.savefig(fname)
+            print('Plot:', fname)
