@@ -51,7 +51,7 @@ if __name__ == '__main__':
     #f_war = Dense(1)(aftf_conc)
     #f_eoi = Dense(1)(aftf_conc)
     #f_rel = Dense(1)(aftf_conc)
-    f_ee = Dense(1)(aftf_conc)
+    f_ee = Dense(3)(aftf_conc)
 
     model = Model(inputs=[tf_inputs, af_inputs], outputs=[f_ee], name='ee_full_bimodal')
     model.compile(optimizer=SGD(lr=0.01), loss='categorical_crossentropy')
