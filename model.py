@@ -34,29 +34,29 @@ if __name__ == '__main__':
     tf_train, tf_test, af_train, af_test, y_train, y_test = train_test_split(tf, af, y, test_size=0.2, random_state=SEED)
     # X_train, X_dev, y_train, y_dev = train_test_split(X_train, y_train, test_size=0.25, random_state=SEED)
 
-    tf_inputs = Input(shape=(MAX_LENGTH,))
-    af_inputs = Input(shape=af[0].shape)
+    tf_inputs = Input(shape=(MAX_LENGTH,), name='tf_input')
+    af_inputs = Input(shape=af[0].shape, name='af_input')
 
     tf_emb = Embedding(input_dim=emb_matrix.shape[0], output_dim=emb_matrix[0].shape[0], input_length=MAX_LENGTH,
-                       weights=[emb_matrix], trainable=False)(tf_inputs)
+                       weights=[emb_matrix], trainable=False, name='tf_emb')(tf_inputs)
     tf_bilstm = Bidirectional(LSTM(300, activation='sigmoid', recurrent_dropout=0.2, recurrent_activation='sigmoid',
-                                   return_sequences=True))(tf_emb)
+                                   return_sequences=True), name='tf_lstm')(tf_emb)
 
-    af_lstm = LSTM(600, return_sequences=True)(af_inputs)
+    af_lstm = LSTM(600, return_sequences=True, name='af_lstm')(af_inputs)
 
-    aftf_conc = concatenate([tf_bilstm, af_lstm])
-    aftf_conc = Dropout(0.2)(aftf_conc)
+    aftf_conc = concatenate([tf_bilstm, af_lstm], name='concat')
+    aftf_conc = Dropout(0.2)(aftf_conc, name='dropout')
 
     #f_is = Dense(1)(aftf_conc)
     #f_war = Dense(1)(aftf_conc)
     #f_eoi = Dense(1)(aftf_conc)
     #f_rel = Dense(1)(aftf_conc)
-    f_ee = Dense(1)(aftf_conc)
+    f_ee = Dense(1)(aftf_conc, name='dense')
 
     model = Model(inputs=[tf_inputs, af_inputs], outputs=[f_ee], name='ee_full_bimodal')
     model.compile(optimizer=Adam(lr=0.001), loss='categorical_crossentropy')
 
-    print(model.summary())
+    model.summary()
 
     model.fit(
         {'tf': tf_train, 'af': af_train},

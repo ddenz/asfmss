@@ -206,7 +206,7 @@ def prepare_sequential_text(emb_path, sentence_tokenize=False, test=False):
         x = [[token2index.get(token, token2index[UNK]) for token in doc] for doc in texts]
         x = pad_sequences(x, maxlen=MAX_LENGTH, padding='post')
 
-    return x, audio_features_padded, df_data[LABELS], embedding_matrix
+    return np.asarray(x), np.asarray(audio_features_padded), df_data[LABELS], embedding_matrix
 
 
 def process_token(token):
