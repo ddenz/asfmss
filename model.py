@@ -45,13 +45,13 @@ if __name__ == '__main__':
     af_lstm = LSTM(600, return_sequences=True, name='af_lstm')(af_inputs)
 
     aftf_conc = concatenate([tf_bilstm, af_lstm], name='concat')
-    aftf_conc = Dropout(0.2)(aftf_conc)
+    aftf_conc = Dropout(0.2)(aftf_conc, name='dropout')
 
     #f_is = Dense(1)(aftf_conc)
     #f_war = Dense(1)(aftf_conc)
     #f_eoi = Dense(1)(aftf_conc)
     #f_rel = Dense(1)(aftf_conc)
-    f_ee = Dense(1)(aftf_conc, name='dense')
+    f_ee = Dense(1)(aftf_conc)
 
     model = Model(inputs=[tf_inputs, af_inputs], outputs=[f_ee], name='ee_full_bimodal')
     model.compile(optimizer=Adam(lr=0.001), loss='categorical_crossentropy')
