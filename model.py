@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 from keras.layers import Bidirectional, Dense, Embedding, Dropout, Input, LSTM, concatenate
 from keras.models import Model
-from keras.optimizers import Adam
+from keras.optimizers import Adam, SGD
 from utils import prepare_sequential_text
 from utils import SEED, LABELS, MAX_LENGTH
 from sklearn.model_selection import train_test_split
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     f_ee = Dense(1)(aftf_conc)
 
     model = Model(inputs=[tf_inputs, af_inputs], outputs=[f_ee], name='ee_full_bimodal')
-    model.compile(optimizer=Adam(lr=0.1), loss='categorical_crossentropy')
+    model.compile(optimizer=SGD(lr=0.01), loss='categorical_crossentropy')
 
     model.summary()
 
