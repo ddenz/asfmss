@@ -37,12 +37,12 @@ if __name__ == '__main__':
     tf_inputs = Input(shape=(MAX_LENGTH,))
     af_inputs = Input(shape=af[0].shape)
 
-    tf_emb = Embedding(input_dim=emb_matrix.shape[0], output_dim=emb_matrix[0].shape[0],
-                    input_length=MAX_LENGTH, weights=[emb_matrix], trainable=False)(tf_inputs)
+    tf_emb = Embedding(input_dim=emb_matrix.shape[0], output_dim=emb_matrix[0].shape[0], input_length=MAX_LENGTH,
+                       weights=[emb_matrix], trainable=False)(tf_inputs)
     tf_bilstm = Bidirectional(LSTM(300, activation='sigmoid', recurrent_dropout=0.2, recurrent_activation='sigmoid',
-                                                return_sequences=False))(tf_emb)
+                                   return_sequences=True))(tf_emb)
 
-    af_lstm = LSTM(300, return_sequences=True)(af_inputs)
+    af_lstm = LSTM(600, return_sequences=True)(af_inputs)
 
     aftf_conc = concatenate([tf_bilstm, af_lstm])
     aftf_conc = Dropout(0.2)(aftf_conc)
