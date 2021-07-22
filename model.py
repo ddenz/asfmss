@@ -54,7 +54,7 @@ if __name__ == '__main__':
     f_ee = Dense(1)(aftf_conc)
 
     model = Model(inputs=[tf_inputs, af_inputs], outputs=[f_ee], name='ee_full_bimodal')
-    model.compile(optimizer=Adam(lr=0.001), loss='categorical_crossentropy')
+    model.compile(optimizer=Adam(lr=0.1), loss='categorical_crossentropy')
 
     model.summary()
 
