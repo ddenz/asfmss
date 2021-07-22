@@ -46,7 +46,23 @@ if __name__ == '__main__':
 
     aftf_conc = concatenate([tf_bilstm, af_lstm])
     aftf_conc = Dropout(0.2)(aftf_conc)
-    outputs = Dense(len(LABELS))(aftf_conc)
+
+    #f_is = Dense(1)(aftf_conc)
+    #f_war = Dense(1)(aftf_conc)
+    #f_eoi = Dense(1)(aftf_conc)
+    #f_rel = Dense(1)(aftf_conc)
+    f_ee = Dense(1)(aftf_conc)
+
+    model = Model(inputs=[tf_inputs, af_inputs], outputs=[f_ee], name='ee_full_bimodal')
+
+    print(model.summary())
+
+    model.fit(
+        {'tf': tf_train, 'af': af_train},
+        {'ee': y_train[:, 't2_ee']},
+        epochs=2,
+        batch_size=32
+    )
 
     """
     models = {}
