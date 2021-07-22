@@ -61,7 +61,7 @@ if __name__ == '__main__':
     model.fit(
         {'tf_inputs': tf_train, 'af_inputs': af_train},
         {'dense': y_train[['t2_ee']]},
-        epochs=2,
+        epochs=20,
         batch_size=32
     )
 
