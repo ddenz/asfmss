@@ -46,7 +46,7 @@ if __name__ == '__main__':
 
     aftf_conc = concatenate([tf_bilstm, af_lstm])
     aftf_conc = Dropout(0.2)(aftf_conc)
-    outputs = Dense(len(y.unique()))(aftf_conc)
+    outputs = Dense(len(y.shape[1]))(aftf_conc)
 
     """
     models = {}
