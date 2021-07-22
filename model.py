@@ -1,11 +1,13 @@
 import matplotlib.pyplot as plt
 
-from keras.layers import Attention, Bidirectional, Conv1D, Dense, Embedding, Dropout, Input, LSTM, MaxPooling1D, TimeDistributed
+from keras.layers import Bidirectional, Dense, Embedding, Dropout, Input, LSTM, concatenate
 from keras.models import Model
 from keras.optimizers import Adam
-from utils import prepare_sequential
+from utils import prepare_sequential_text
 from utils import SEED, LABELS, MAX_LENGTH
 from sklearn.model_selection import train_test_split
+
+OUTPUT_DIR = './output'
 
 
 def build_model(embedding_matrix):
@@ -24,12 +26,29 @@ def build_model(embedding_matrix):
 
 
 if __name__ == '__main__':
-    X, y, emb_matrix = prepare_sequential('~/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=True)
+    tf, af, y, emb_matrix = prepare_sequential_text('~/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=True)
+
+    assert len(tf) == len(af) == len(y)
 
     # 60-20-20 split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=SEED)
-    #X_train, X_dev, y_train, y_dev = train_test_split(X_train, y_train, test_size=0.25, random_state=SEED)
+    tf_train, tf_test, af_train, af_test, y_train, y_test = train_test_split(tf, af, y, test_size=0.2, random_state=SEED)
+    # X_train, X_dev, y_train, y_dev = train_test_split(X_train, y_train, test_size=0.25, random_state=SEED)
 
+    tf_inputs = Input(shape=(MAX_LENGTH,))
+    af_inputs = Input(shape=af[0].shape)
+
+    tf_emb = Embedding(input_dim=emb_matrix.shape[0], output_dim=emb_matrix[0].shape[0],
+                    input_length=MAX_LENGTH, weights=[emb_matrix], trainable=False)(tf_inputs)
+    tf_bilstm = Bidirectional(LSTM(300, activation='sigmoid', recurrent_dropout=0.2, recurrent_activation='sigmoid',
+                                                return_sequences=False))(tf_emb)
+
+    af_lstm = LSTM(300, return_sequences=True)(af_inputs)
+
+    aftf_conc = concatenate([tf_bilstm, af_lstm])
+    aftf_conc = Dropout(0.2)(aftf_conc)
+    outputs = Dense(len(y.unique()))(aftf_conc)
+
+    """
     models = {}
     m = build_model(emb_matrix)
     for label in LABELS:
@@ -37,5 +56,7 @@ if __name__ == '__main__':
         for metric in history.history.keys():
             plt.plot(history.history[metric])
             fname = 'model_' + label + '.png'
-            plt.savefig(fname)
-            print('Plot:', fname)
+            pout = OUTPUT_DIR + '/' + fname
+            plt.savefig()
+            print('Plot:', pout)
+    """
