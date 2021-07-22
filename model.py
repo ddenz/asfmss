@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
     model.fit(
         {'tf': tf_train, 'af': af_train},
-        {'ee': y_train[:, 't2_ee']},
+        {'ee': y_train[['t2_ee']]},
         epochs=2,
         batch_size=32
     )
