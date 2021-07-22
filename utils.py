@@ -145,8 +145,9 @@ def load_embeddings(emb_path):
     return model
 
 
-def load_audio_features(idnum, ftype='mfcc'):
-    return pd.read_pickle('data/' + str(idnum) + '.wav_' + ftype + '.pickle')
+def load_audio_features(idnum, ftype='mfcc', dim=400):
+    af = pd.read_pickle('data/' + str(idnum) + '.wav_' + ftype + '.pickle')
+    return af[:dim]
 
 
 def prepare_sequential_text(emb_path, sentence_tokenize=False, test=False):
@@ -161,7 +162,8 @@ def prepare_sequential_text(emb_path, sentence_tokenize=False, test=False):
 
     audio_features = []
     for idnum in df_data.idnum:
-        audio_features.append(load_audio_features(idnum, ftype='mfcc'))
+        af = load_audio_features(idnum, ftype='mfcc', dim=400)
+        audio_features.append(af)
 
     audio_features_padded = [pad_sequences(seq, padding='post') for seq in audio_features]
 
