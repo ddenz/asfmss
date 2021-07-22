@@ -1,12 +1,16 @@
+import glob
+
 import docx
 import logging
 import numpy as np
-import pandas as pd
 import os
+import pandas as pd
 import re
 import spacy
 
+from keras.models import Sequential
 from keras.preprocessing.sequence import pad_sequences
+from keras.optimizers import Adam
 
 from gensim.scripts.glove2word2vec import glove2word2vec
 from gensim.models.keyedvectors import KeyedVectors
@@ -23,6 +27,7 @@ if env == 'local':
     TEXT_DIR = '/Users/Andre/workspace/PycharmProjects/asfmss/Quest ASFMSS/Data/Transcripts/TXT/Cleaned'
 else:
     CODING_DIR = './data'
+    FEATS_DIR = './data'
 
 GENSIM_DATA_DIR = '~/gensim-data/'
 
@@ -35,6 +40,20 @@ LABELS = ['t2_fmss_IS', 't2_fmss_war', 't2_fmss_eoi', 't2_rel', 't2_ee']
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 nlp = spacy.load('en_core_web_sm')
+
+
+class SentenceEncoder(Sequential):
+    def __init__(self, embedding_matrix):
+        super().__init__()
+        self.embedding_matrix = embedding_matrix
+
+    def build_model(self, optimizer=Adam(lr=0.001), loss='categorical_crossentropy'):
+        # input_dim = vocab size, output_dim = embedding size, input_length = sentence length
+        self.add(Embedding(input_dim=self.embedding_matrix.shape[0], output_dim=self.embedding_matrix[0].shape[0],
+                           input_length=MAX_LENGTH, weights=[self.emb_matrix], trainable=False))
+        self.add(Conv1D(filters=64, kernel_size=7))
+        self.add(MaxPooling1D())
+        self.compile(loss=loss, optimizer=optimizer, metrics=['accuracy'])
 
 
 def word2txt():
@@ -114,8 +133,8 @@ def create_token_index_mappings(texts, sentence_tokenized_input=False):
 
 def load_data(test=False):
     if test:
-        return pd.read_csv(CODING_DIR + '/asfmss_dummy_data.csv')
-    return pd.read_csv(CODING_DIR + '/Quest_ASFMSS_all_data.csv')
+        return pd.read_csv(CODING_DIR + '/asfmss_dummy_data_text.csv', dtype={'idnum': str})
+    return pd.read_csv(CODING_DIR + '/Quest_ASFMSS_all_data.csv', dtype={'idnum': str})
 
 
 def load_embeddings(emb_path):
@@ -126,7 +145,11 @@ def load_embeddings(emb_path):
     return model
 
 
-def prepare_sequential(emb_path, sentence_tokenize=False, test=False):
+def load_audio_features(idnum, ftype='mfcc'):
+    return pd.read_pickle('data/' + str(idnum) + '.wav_' + ftype + '.pickle')
+
+
+def prepare_sequential_text(emb_path, sentence_tokenize=False, test=False):
     logging.info('Preparing sequential data (' + emb_path + ')...')
 
     df_data = load_data(test=test)
@@ -135,6 +158,12 @@ def prepare_sequential(emb_path, sentence_tokenize=False, test=False):
 
     for doc in nlp.pipe(df_data.text):
         texts.append(spacy_tokenize(doc, sentence_tokenize=sentence_tokenize))
+
+    audio_features = []
+    for idnum in df_data.idnum:
+        audio_features.append(load_audio_features(idnum, ftype='mfcc'))
+
+    audio_features_padded = [pad_sequences(seq, padding='post') for seq in audio_features]
 
     embedding_vectors = load_embeddings(emb_path)
 
@@ -175,7 +204,7 @@ def prepare_sequential(emb_path, sentence_tokenize=False, test=False):
         x = [[token2index.get(token, token2index[UNK]) for token in doc] for doc in texts]
         x = pad_sequences(x, maxlen=MAX_LENGTH, padding='post')
 
-    return x, df_data[LABELS], embedding_matrix
+    return x, audio_features_padded, df_data[LABELS], embedding_matrix
 
 
 def process_token(token):
@@ -199,7 +228,11 @@ def spacy_tokenize(doc, sentence_tokenize=False):
     return [process_token(token) for token in doc]
 
 
+def prepare_sequential_audio(feature_type='mfcc'):
+    return [pd.read_pickle(f) for f in glob.glob('./data/*mfcc.pickle')]
+
+
 if __name__ == '__main__':
     #df = load_data_to_dataframe()
     #df.to_csv(CODING_DIR + '/Quest_ASFMSS_all_data.csv', encoding='utf-8', index=False)
-    X, y, emb_matrix = prepare_sequential(GENSIM_DATA_DIR + '/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=True)
+    tf, af, labels, emb_matrix = prepare_sequential_text(GENSIM_DATA_DIR + '/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=True)
