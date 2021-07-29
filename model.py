@@ -7,9 +7,6 @@ from utils import prepare_sequential_features
 from utils import SEED, LABELS, MAX_LENGTH
 from sklearn.model_selection import train_test_split
 
-from keras import backend as K
-from keras.layers import Flatten, Activation, RepeatVector, Permute, Lambda, merge
-
 OUTPUT_DIR = './output'
 
 
@@ -49,17 +46,7 @@ if __name__ == '__main__':
 
     aftf_conc = concatenate([tf_bilstm, af_lstm])
 
-    # add an attention layer - save weights in a
-    # https://towardsdatascience.com/create-your-own-custom-attention-layer-understand-all-flavours-2201b5e8be9e
-    e = Dense(1, activation='tanh')(aftf_conc)
-    e = Flatten()(e)
-    a = Activation('softmax')(e)  # Don't manipulate 'a'. It needs to be 'return'ed intact
-    temp = RepeatVector(256)(a)
-    temp = Permute([2, 1])(temp)
-    output = merge.Multiply()([aftf_conc, temp])
-    output = Lambda(lambda values: K.sum(values, axis=1))(output)
-
-    aftf_conc = Dropout(0.2)(output)
+    aftf_conc = Dropout(0.2)(aftf_conc)
 
     #f_is = Dense(1)(aftf_conc)
     #f_war = Dense(1)(aftf_conc)
