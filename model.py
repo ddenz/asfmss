@@ -6,6 +6,7 @@ from keras.optimizers import Adam, SGD
 from utils import prepare_sequential_features
 from utils import SEED, LABELS, MAX_LENGTH
 from sklearn.model_selection import train_test_split
+from attention import Attention
 
 OUTPUT_DIR = './output'
 
@@ -45,7 +46,7 @@ if __name__ == '__main__':
 
     af_lstm = LSTM(600, return_sequences=False)(af_inputs)
 
-    aftf_conc = concatenate([tf_bilstm, af_lstm])
+    aftf_conc = concatenate([tf_bilstm, af_lstm], axis=0)
     aftf_conc = Dropout(0.2)(aftf_conc)
 
     #f_is = Dense(1)(aftf_conc)
