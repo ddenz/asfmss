@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     af_lstm = LSTM(600, return_sequences=True)(af_inputs)
 
-    aftf_conc = concatenate([tf_bilstm, af_lstm], axis=1)
+    aftf_conc = concatenate([tf_bilstm, af_lstm])
     aftf_conc = Dropout(0.2)(aftf_conc)
 
     #f_is = Dense(1)(aftf_conc)
