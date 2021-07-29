@@ -2,10 +2,13 @@ import matplotlib.pyplot as plt
 
 from keras.layers import Bidirectional, Dense, Embedding, Dropout, Input, LSTM, concatenate
 from keras.models import Model
-from keras.optimizers import Adam, SGD
+from keras.optimizers import Adam
 from utils import prepare_sequential_features
 from utils import SEED, LABELS, MAX_LENGTH
 from sklearn.model_selection import train_test_split
+
+from keras import backend as K
+from keras.layers import Flatten, Activation, RepeatVector, Permute, Lambda, merge
 
 OUTPUT_DIR = './output'
 
@@ -38,14 +41,24 @@ if __name__ == '__main__':
     af_inputs = Input(shape=af[0].shape, name='af_inputs')
 
     tf_emb = Embedding(input_dim=emb_matrix.shape[0], output_dim=emb_matrix[0].shape[0], input_length=MAX_LENGTH,
-                       weights=[emb_matrix], trainable=False)(tf_inputs)
+                       weights=[emb_matrix], trainable=True)(tf_inputs)
     tf_bilstm = Bidirectional(LSTM(300, activation='sigmoid', recurrent_dropout=0.2, recurrent_activation='sigmoid',
-                                   return_sequences=False))(tf_emb)
+                                   return_sequences=True))(tf_emb)
 
     af_lstm = LSTM(600, return_sequences=False)(af_inputs)
 
-    aftf_conc = concatenate([tf_bilstm, af_lstm], axis=-1)
-    aftf_conc = Dropout(0.2)(aftf_conc)
+    aftf_conc = concatenate([tf_bilstm, af_lstm], axis=1)
+
+    # add an attention layer - save weights in a
+    e = Dense(1, activation='tanh')(aftf_conc)
+    e = Flatten()(e)
+    a = Activation('softmax')(e)  # Don't manipulate 'a'. It needs to be 'return'ed intact
+    temp = RepeatVector(256)(a)
+    temp = Permute([2, 1])(temp)
+    output = merge.Multiply()([aftf_conc, temp])
+    output = Lambda(lambda values: K.sum(values, axis=1))(output)
+
+    aftf_conc = Dropout(0.2)(output)
 
     #f_is = Dense(1)(aftf_conc)
     #f_war = Dense(1)(aftf_conc)
