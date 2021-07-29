@@ -176,7 +176,7 @@ def prepare_sequential_features(emb_path, sentence_tokenize=False, test=False, s
 
     audio_features = []
     for idnum in df_data.idnum:
-        af = load_audio_features(idnum, ftype='mfcc', dim=-1, test=test)
+        af = load_audio_features(idnum, ftype='mfcc', dim=400, test=test)
         audio_features.append(af)
 
     audio_features_padded = [pad_sequences(seq, padding='post') for seq in audio_features]
