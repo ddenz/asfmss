@@ -47,9 +47,10 @@ if __name__ == '__main__':
 
     af_lstm = LSTM(600, return_sequences=False)(af_inputs)
 
-    aftf_conc = concatenate([tf_bilstm, af_lstm], axis=1)
+    aftf_conc = concatenate([tf_bilstm, af_lstm])
 
     # add an attention layer - save weights in a
+    # https://towardsdatascience.com/create-your-own-custom-attention-layer-understand-all-flavours-2201b5e8be9e
     e = Dense(1, activation='tanh')(aftf_conc)
     e = Flatten()(e)
     a = Activation('softmax')(e)  # Don't manipulate 'a'. It needs to be 'return'ed intact
