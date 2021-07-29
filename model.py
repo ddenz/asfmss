@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from keras.layers import Bidirectional, Dense, Embedding, Dropout, Input, LSTM, concatenate
 from keras.models import Model
 from keras.optimizers import Adam, SGD
-from utils import prepare_sequential_text
+from utils import prepare_sequential_features
 from utils import SEED, LABELS, MAX_LENGTH
 from sklearn.model_selection import train_test_split
 
@@ -26,7 +26,7 @@ def build_model(embedding_matrix):
 
 
 if __name__ == '__main__':
-    tf, af, y, emb_matrix = prepare_sequential_text('~/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=True)
+    tf, af, y, emb_matrix = prepare_sequential_features('~/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=True)
 
     assert len(tf) == len(af) == len(y)
 
@@ -44,17 +44,17 @@ if __name__ == '__main__':
 
     af_lstm = LSTM(600, return_sequences=False)(af_inputs)
 
-    aftf_conc = concatenate([tf_bilstm, af_lstm])
+    aftf_conc = concatenate([tf_bilstm, af_lstm], axis=0)
     aftf_conc = Dropout(0.2)(aftf_conc)
 
     #f_is = Dense(1)(aftf_conc)
     #f_war = Dense(1)(aftf_conc)
     #f_eoi = Dense(1)(aftf_conc)
     #f_rel = Dense(1)(aftf_conc)
-    f_ee = Dense(3)(aftf_conc)
+    f_ee = Dense(1)(aftf_conc)
 
     model = Model(inputs=[tf_inputs, af_inputs], outputs=[f_ee], name='ee_full_bimodal')
-    model.compile(optimizer=SGD(lr=0.01), loss='categorical_crossentropy')
+    model.compile(optimizer=Adam(lr=0.1), loss='categorical_crossentropy')
 
     model.summary()
 

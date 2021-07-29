@@ -145,12 +145,26 @@ def load_embeddings(emb_path):
     return model
 
 
-def load_audio_features(idnum, ftype='mfcc', dim=400):
-    af = pd.read_pickle('data/' + str(idnum) + '.wav_' + ftype + '.pickle')
-    return af[:dim]
+def load_audio_features(idnum, ftype='mfcc', dim=400, test=False):
+    if test:
+        audio_features = pd.read_pickle('data/' + str(idnum) + '.wav_' + ftype + '.pickle')
+    else:
+        audio_features = pd.read_pickle(FEATS_DIR + '/' + str(idnum) + '.wav_' + ftype + '.pickle')
+    if dim >= 0:
+        return audio_features[:dim]
+    return audio_features
 
 
-def prepare_sequential_text(emb_path, sentence_tokenize=False, test=False):
+def load_sequential_features():
+    x = pd.read_pickle('data/tf_embeddings.pickle')
+    audio_features_padded = pd.to_pickle('data/af_padded.pickle')
+    labels = pd.to_pickle('data/labels_binarized.pickle')
+    embedding_matrix = pd.to_pickle('data/embedding_matrix.pickle')
+
+    return x, audio_features_padded, labels, embedding_matrix
+
+
+def prepare_sequential_features(emb_path, sentence_tokenize=False, test=False, save=False):
     logging.info('Preparing sequential data (' + emb_path + ')...')
 
     df_data = load_data(test=test)
@@ -162,7 +176,7 @@ def prepare_sequential_text(emb_path, sentence_tokenize=False, test=False):
 
     audio_features = []
     for idnum in df_data.idnum:
-        af = load_audio_features(idnum, ftype='mfcc', dim=400)
+        af = load_audio_features(idnum, ftype='mfcc', dim=-1, test=test)
         audio_features.append(af)
 
     audio_features_padded = [pad_sequences(seq, padding='post') for seq in audio_features]
@@ -206,7 +220,16 @@ def prepare_sequential_text(emb_path, sentence_tokenize=False, test=False):
         x = [[token2index.get(token, token2index[UNK]) for token in doc] for doc in texts]
         x = pad_sequences(x, maxlen=MAX_LENGTH, padding='post')
 
-    return np.asarray(x), np.asarray(audio_features_padded), df_data[LABELS], embedding_matrix
+    x = np.asarray(x)
+    audio_features_padded = np.asarray(audio_features_padded)
+
+    if save:
+        pd.to_pickle(x, 'data/tf_embeddings.pickle')
+        pd.to_pickle(audio_features_padded, 'data/af.pickle')
+        pd.to_pickle(df_data[LABELS], 'data/labels_binarized.pickle')
+        pd.to_pickle(embedding_matrix, 'data/embedding_matrix.pickle')
+
+    return x, audio_features_padded, df_data[LABELS], embedding_matrix
 
 
 def process_token(token):
@@ -237,4 +260,4 @@ def prepare_sequential_audio(feature_type='mfcc'):
 if __name__ == '__main__':
     #df = load_data_to_dataframe()
     #df.to_csv(CODING_DIR + '/Quest_ASFMSS_all_data.csv', encoding='utf-8', index=False)
-    tf, af, labels, emb_matrix = prepare_sequential_text(GENSIM_DATA_DIR + '/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=True)
+    tf, af, labels, emb_matrix = prepare_sequential_features(GENSIM_DATA_DIR + '/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=True)
