@@ -42,7 +42,7 @@ if __name__ == '__main__':
     tf_bilstm = Bidirectional(LSTM(300, activation='sigmoid', recurrent_dropout=0.2, recurrent_activation='sigmoid',
                                    return_sequences=True))(tf_emb)
 
-    af_lstm = LSTM(600, return_sequences=False)(af_inputs)
+    af_lstm = LSTM(600, return_sequences=True)(af_inputs)
 
     aftf_conc = concatenate([tf_bilstm, af_lstm])
 
