@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from keras.layers import Bidirectional, Dense, Embedding, Dropout, Input, LSTM, concatenate
+from keras.layers import Bidirectional, Dense, Embedding, Dropout, Input, LSTM, concatenate, Flatten
 from keras.models import Model
 from keras.optimizers import Adam, SGD
 from utils import prepare_sequential_features
@@ -45,7 +45,10 @@ if __name__ == '__main__':
 
     af_lstm = LSTM(600, return_sequences=True)(af_inputs)
 
-    aftf_conc = concatenate([tf_bilstm, af_lstm], axis=0)
+    af_flat = Flatten()(af_lstm)
+    tf_flat = Flatten()(tf_bilstm)
+
+    aftf_conc = concatenate([tf_flat, af_flat])
     aftf_conc = Dropout(0.2)(aftf_conc)
 
     #f_is = Dense(1)(aftf_conc)
