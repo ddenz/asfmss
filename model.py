@@ -3,10 +3,9 @@ import matplotlib.pyplot as plt
 from keras.layers import Bidirectional, Dense, Embedding, Dropout, Input, LSTM, concatenate
 from keras.models import Model
 from keras.optimizers import Adam, SGD
-from utils import prepare_sequential_features
+from utils import prepare_sequential_features, load_sequential_features
 from utils import SEED, LABELS, MAX_LENGTH
 from sklearn.model_selection import train_test_split
-from attention import Attention
 
 OUTPUT_DIR = './output'
 
@@ -27,7 +26,8 @@ def build_model(embedding_matrix):
 
 
 if __name__ == '__main__':
-    tf, af, y, emb_matrix = prepare_sequential_features('~/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=True)
+    # tf, af, y, emb_matrix = prepare_sequential_features('~/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=True, save=False)
+    tf, af, y, emb_matrix = load_sequential_features()
 
     assert len(tf) == len(af) == len(y)
 
@@ -41,12 +41,12 @@ if __name__ == '__main__':
     tf_emb = Embedding(input_dim=emb_matrix.shape[0], output_dim=emb_matrix[0].shape[0], input_length=MAX_LENGTH,
                        weights=[emb_matrix], trainable=False)(tf_inputs)
 
-    tf_bilstm = Bidirectional(LSTM(300, activation='sigmoid', recurrent_dropout=0.2, recurrent_activation='sigmoid',
+    tf_bilstm = Bidirectional(LSTM(150, activation='sigmoid', recurrent_dropout=0.2, recurrent_activation='sigmoid',
                                    return_sequences=False))(tf_emb)
 
-    af_lstm = LSTM(600, return_sequences=False)(af_inputs)
+    af_lstm = LSTM(300, return_sequences=False)(af_inputs)
 
-    aftf_conc = concatenate([tf_bilstm, af_lstm], axis=0)
+    aftf_conc = concatenate([tf_bilstm, af_lstm])
     aftf_conc = Dropout(0.2)(aftf_conc)
 
     #f_is = Dense(1)(aftf_conc)

@@ -155,13 +155,28 @@ def load_audio_features(idnum, ftype='mfcc', dim=400, test=False):
     return audio_features
 
 
-def load_sequential_features():
-    x = pd.read_pickle('data/tf_embeddings.pickle')
-    audio_features_padded = pd.to_pickle('data/af_padded.pickle')
-    labels = pd.to_pickle('data/labels_binarized.pickle')
-    embedding_matrix = pd.to_pickle('data/embedding_matrix.pickle')
+def load_sequential_features(audio=True, text=True):
+    """
+    Load from disk to avoid preprocessing.
+    :param audio: load audio features
+    :param text: load text features
+    :return: word embeddings, padded audio feature matrices, target labels, word embedding matrix
+    """
+    logging.info('Loading pre-calculated features from disk:')
+    t = None
+    a = None
+    if text:
+        tp = 'data/tf_embeddings.pickle'
+        logging.info('-- text (' + tp + ')')
+        t = pd.read_pickle(tp)
+    if audio:
+        ap = 'data/af_padded.pickle'
+        logging.info('-- audio (' + ap + ')')
+        a = pd.read_pickle(ap)
+    y = pd.read_pickle('data/labels_binarized.pickle')
+    e = pd.read_pickle('data/embedding_matrix.pickle')
 
-    return x, audio_features_padded, labels, embedding_matrix
+    return t, a, y, e
 
 
 def prepare_sequential_features(emb_path, sentence_tokenize=False, test=False, save=False):
@@ -225,7 +240,7 @@ def prepare_sequential_features(emb_path, sentence_tokenize=False, test=False, s
 
     if save:
         pd.to_pickle(x, 'data/tf_embeddings.pickle')
-        pd.to_pickle(audio_features_padded, 'data/af.pickle')
+        pd.to_pickle(audio_features_padded, 'data/af_padded.pickle')
         pd.to_pickle(df_data[LABELS], 'data/labels_binarized.pickle')
         pd.to_pickle(embedding_matrix, 'data/embedding_matrix.pickle')
 
