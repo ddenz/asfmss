@@ -2,12 +2,13 @@ import logging
 
 import matplotlib.pyplot as plt
 
+from kerashypetune  import KerasGridSearchCV
 from tensorflow.keras.layers import Bidirectional, Dense, Embedding, Dropout, Input, LSTM, concatenate
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam, SGD
 from utils import prepare_sequential_features, load_sequential_features
 from utils import SEED, LABELS, MAX_LENGTH
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import KFold, train_test_split
 
 OUTPUT_DIR = './output'
 
@@ -20,7 +21,7 @@ def build_model(params, emb_matrix, n_labels, audio=True, text=True):
     logging.info('-- Loading text:' + str(text))
 
     tf_dim = params['text_feature_dim']
-    af_dim = params['audio_feature_dim']
+    af_dim = 2 * tf_dim
     nunits1 = params['text_lstm_nunits']
     nunits2 = params['audio_lstm_nunits']
     dropout = params['dropout']
@@ -52,10 +53,6 @@ def build_model(params, emb_matrix, n_labels, audio=True, text=True):
     elif audio:
         merged = af_lstm
 
-    #f_is = Dense(1)(aftf_conc)
-    #f_war = Dense(1)(aftf_conc)
-    #f_eoi = Dense(1)(aftf_conc)
-    #f_rel = Dense(1)(aftf_conc)
     output = Dense(n_labels, activation='softmax')(merged)
 
     if text and audio:
@@ -87,25 +84,22 @@ if __name__ == '__main__':
     tf_train, tf_test, af_train, af_test, y_train, y_test = train_test_split(tf, af, y, test_size=0.2, random_state=SEED)
     # tf_dev, tf_test, af_dev, af_test, y_test, y_dev = train_test_split(X_train, y_train, test_size=0.25, random_state=SEED)
 
-    """
+    # parameters to tune. text_feature_dim and audio_feature_dim are constant, but need to be passed to build_model
     param_grid = {
-        'lstm_nunits': [25, 50, 100, 150],
+        'text_feature_dim': [MAX_LENGTH],
+        'audio_feature_dim': [af[0].shape],
+        'text_lstm_nunits': [25, 50, 100, 150],
         'dropout': [0.1, 0.2, 0.5],
-        'lr': [0.1, 0.01, 0.001],
-        'epochs': [10, 20, 30, 50]
+        'lr': [0.01, 0.001, 0.0001],
+        'epochs': [10, 25, 50]
     }
+
+    cv = KFold(n_splits=3, random_state=33, shuffle=True)
+    kgs = KerasGridSearchCV(build_model, param_grid, monitor='val_loss', cv=cv, greater_is_better=False)
+    kgs.search({'tf_inputs': tf_train, 'af_inputs': af_train}, {'dense': y_train})
+
     """
-
-    parameters = {
-        'text_feature_dim': MAX_LENGTH,
-        'audio_feature_dim': af[0].shape,
-        'text_lstm_nunits': 150,
-        'audio_lstm_nunits': 300,
-        'dropout': 0.2,
-        'lr': 0.1
-    }
-
-    at_model = build_model(parameters, embedding_matrix, n_labels, text=True, audio=True)
+    at_model = build_model(param_grid, embedding_matrix, n_labels, text=True, audio=True)
 
     at_model.fit(
         {'tf_inputs': tf_train, 'af_inputs': af_train},
@@ -114,7 +108,6 @@ if __name__ == '__main__':
         batch_size=32
     )
 
-    """
     models = {}
     m = build_model(emb_matrix)
     for label in LABELS:
