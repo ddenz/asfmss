@@ -1,3 +1,5 @@
+import logging
+
 import matplotlib.pyplot as plt
 
 from keras.layers import Bidirectional, Dense, Embedding, Dropout, Input, LSTM, concatenate
@@ -12,7 +14,10 @@ OUTPUT_DIR = './output'
 
 def build_model(params, emb_matrix, audio=True, text=True):
     if not (text or audio):
-        raise Exception('-- Please specify input type.')
+        raise Exception('-- Please specify input type (text/audio).')
+
+    logging.info('-- Loading audio:' + str(audio))
+    logging.info('-- Loading text:' + str(text))
 
     tf_dim = params['text_feature_dim']
     af_dim = params['audio_feature_dim']
@@ -93,7 +98,7 @@ if __name__ == '__main__':
         'lr': 0.1
     }
 
-    at_model = build_model(parameters, embedding_matrix, text=False, audio=True)
+    at_model = build_model(parameters, embedding_matrix, text=True, audio=False)
 
     at_model.fit(
         {'tf_inputs': tf_train, 'af_inputs': af_train},
