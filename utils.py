@@ -17,7 +17,7 @@ from gensim.models.keyedvectors import KeyedVectors
 
 from sklearn.preprocessing import LabelBinarizer
 
-env = 'remote'
+env = 'local'
 
 if env == 'local':
     NORM_DIR = '/Users/Andre/workspace/PycharmProjects/asfmss/Quest ASFMSS/Data/Audio/Normalized'
@@ -271,8 +271,9 @@ def spacy_tokenize(doc, sentence_tokenize=False):
 def prepare_sequential_audio(feature_type='mfcc'):
     return [pd.read_pickle(f) for f in glob.glob('./data/*mfcc.pickle')]
 
-
+"""
 if __name__ == '__main__':
     #df = load_data_to_dataframe()
     #df.to_csv(CODING_DIR + '/Quest_ASFMSS_all_data.csv', encoding='utf-8', index=False)
     tf, af, labels, emb_matrix = prepare_sequential_features(GENSIM_DATA_DIR + '/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=True)
+"""
