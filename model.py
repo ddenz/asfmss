@@ -39,7 +39,7 @@ def build_model(params, emb_matrix, n_labels, audio=True, text=True):
         tf_emb = Embedding(input_dim=emb_matrix.shape[0], output_dim=emb_matrix[0].shape[0], input_length=tf_dim,
                            weights=[emb_matrix], trainable=False)(tf_inputs)
         tf_bilstm = Bidirectional(LSTM(nunits1, activation='sigmoid', recurrent_dropout=0.2, recurrent_activation='sigmoid',
-                                       return_sequences=True))(tf_emb)
+                                       return_sequences=False))(tf_emb)
     if audio:
         af_inputs = Input(shape=af_dim, name='af_inputs')
         af_lstm = LSTM(nunits2, return_sequences=False)(af_inputs)
@@ -73,6 +73,7 @@ def build_model(params, emb_matrix, n_labels, audio=True, text=True):
 
 
 if __name__ == '__main__':
+    pred_label = 't2_ee'
     n_labels = 3  # this will be the "theoretical" number of possible classes (e.g. for t2_ee: Low, High, Borderline = 3)
 
     # tf, af, y, emb_matrix = prepare_sequential_features('~/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=False, save=False)
@@ -106,7 +107,7 @@ if __name__ == '__main__':
 
     at_model.fit(
         {'tf_inputs': tf_train, 'af_inputs': af_train},
-        {'dense': y_train[['t2_ee']]},
+        {'dense': y_train[[pred_label]]},
         epochs=20,
         batch_size=32
     )
