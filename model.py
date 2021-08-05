@@ -56,14 +56,14 @@ def build_model(params, emb_matrix, n_labels, audio=True, text=True):
     #f_war = Dense(1)(aftf_conc)
     #f_eoi = Dense(1)(aftf_conc)
     #f_rel = Dense(1)(aftf_conc)
-    f_ee = Dense(n_labels, activation='softmax')(merged)
+    output = Dense(n_labels, activation='softmax')(merged)
 
     if text and audio:
-        model = Model(inputs=[tf_inputs, af_inputs], outputs=[f_ee], name='ee_full_bimodal')
+        model = Model(inputs=[tf_inputs, af_inputs], outputs=[output], name='ee_full_bimodal')
     elif text:
-        model = Model(inputs=[tf_inputs], outputs=[f_ee], name='ee_full_bimodal')
+        model = Model(inputs=[tf_inputs], outputs=[output], name='ee_full_bimodal')
     elif audio:
-        model = Model(inputs=[af_inputs], outputs=[f_ee], name='ee_full_bimodal')
+        model = Model(inputs=[af_inputs], outputs=[output], name='ee_full_bimodal')
 
     model.compile(optimizer=Adam(lr=lr), loss='categorical_crossentropy')
 
@@ -80,8 +80,11 @@ if __name__ == '__main__':
     tf, af, y, embedding_matrix = load_sequential_features()
 
     y = y[pred_label]  # select only the label we want to predict
+    
+    from pprint import pprint
+    pprint(y)
 
-    assert len(tf) == len(af)
+    assert len(tf) == len(af) == len(y)
 
     # 60-20-20 split
     tf_train, tf_test, af_train, af_test, y_train, y_test = train_test_split(tf, af, y, test_size=0.2, random_state=SEED)
