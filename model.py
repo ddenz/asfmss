@@ -12,7 +12,7 @@ from sklearn.model_selection import train_test_split
 OUTPUT_DIR = './output'
 
 
-def build_model(params, emb_matrix, audio=True, text=True):
+def build_model(params, emb_matrix, n_labels, audio=True, text=True):
     if not (text or audio):
         raise Exception('-- Please specify input type (text/audio).')
 
@@ -56,7 +56,7 @@ def build_model(params, emb_matrix, audio=True, text=True):
     #f_war = Dense(1)(aftf_conc)
     #f_eoi = Dense(1)(aftf_conc)
     #f_rel = Dense(1)(aftf_conc)
-    f_ee = Dense(1)(merged)
+    f_ee = Dense(n_labels, activation='softmax')(merged)
 
     if text and audio:
         model = Model(inputs=[tf_inputs, af_inputs], outputs=[f_ee], name='ee_full_bimodal')
@@ -73,6 +73,8 @@ def build_model(params, emb_matrix, audio=True, text=True):
 
 
 if __name__ == '__main__':
+    n_labels = 3  # this will be the "theoretical" number of possible classes (e.g. for t2_ee: Low, High, Borderline = 3)
+
     # tf, af, y, emb_matrix = prepare_sequential_features('~/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=False, save=False)
     tf, af, y, embedding_matrix = load_sequential_features()
 
@@ -82,12 +84,14 @@ if __name__ == '__main__':
     tf_train, tf_test, af_train, af_test, y_train, y_test = train_test_split(tf, af, y, test_size=0.2, random_state=SEED)
     # tf_dev, tf_test, af_dev, af_test, y_test, y_dev = train_test_split(X_train, y_train, test_size=0.25, random_state=SEED)
 
+    """
     param_grid = {
         'lstm_nunits': [25, 50, 100, 150],
         'dropout': [0.1, 0.2, 0.5],
         'lr': [0.1, 0.01, 0.001],
         'epochs': [10, 20, 30, 50]
     }
+    """
 
     parameters = {
         'text_feature_dim': MAX_LENGTH,
@@ -98,7 +102,7 @@ if __name__ == '__main__':
         'lr': 0.1
     }
 
-    at_model = build_model(parameters, embedding_matrix, text=True, audio=False)
+    at_model = build_model(parameters, embedding_matrix, n_labels, text=True, audio=False)
 
     at_model.fit(
         {'tf_inputs': tf_train, 'af_inputs': af_train},
