@@ -76,8 +76,8 @@ if __name__ == '__main__':
     pred_label = 't2_ee'
     n_labels = 3  # this will be the "theoretical" number of possible classes (e.g. for t2_ee: Low, High, Borderline = 3)
 
-    tf, af, y, emb_matrix = prepare_sequential_features('~/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=False, save=True)
-    # tf, af, y, embedding_matrix = load_sequential_features()
+    # tf, af, y, emb_matrix = prepare_sequential_features('~/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=False, save=True)
+    tf, af, y, embedding_matrix = load_sequential_features()
 
     assert len(tf) == len(af)
 
