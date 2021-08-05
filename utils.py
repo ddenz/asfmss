@@ -149,7 +149,7 @@ def load_audio_features(idnum, ftype='mfcc', dim=400, test=False):
     if test:
         audio_features = pd.read_pickle('data/' + str(idnum) + '.wav_' + ftype + '.pickle')
     else:
-        audio_features = pd.read_pickle(FEATS_DIR + '/' + str(idnum) + '.wav_' + ftype + '.pickle')
+        audio_features = pd.read_pickle(FEATS_DIR + '/Q' + str(idnum) + '.wav_' + ftype + '.pickle')
     if dim >= 0:
         return audio_features[:dim]
     return audio_features

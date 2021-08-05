@@ -68,7 +68,7 @@ def build_model(params, emb_matrix, audio=True, text=True):
 
 
 if __name__ == '__main__':
-    # tf, af, y, emb_matrix = prepare_sequential_features('~/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=True, save=False)
+    # tf, af, y, emb_matrix = prepare_sequential_features('~/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=False, save=False)
     tf, af, y, embedding_matrix = load_sequential_features()
 
     assert len(tf) == len(af) == len(y)
@@ -77,14 +77,12 @@ if __name__ == '__main__':
     tf_train, tf_test, af_train, af_test, y_train, y_test = train_test_split(tf, af, y, test_size=0.2, random_state=SEED)
     # tf_dev, tf_test, af_dev, af_test, y_test, y_dev = train_test_split(X_train, y_train, test_size=0.25, random_state=SEED)
 
-    """"
     param_grid = {
         'lstm_nunits': [25, 50, 100, 150],
         'dropout': [0.1, 0.2, 0.5],
         'lr': [0.1, 0.01, 0.001],
         'epochs': [10, 20, 30, 50]
     }
-    """
 
     parameters = {
         'text_feature_dim': MAX_LENGTH,
