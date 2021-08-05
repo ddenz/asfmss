@@ -39,7 +39,7 @@ def build_model(params, emb_matrix, n_labels, audio=True, text=True):
         tf_emb = Embedding(input_dim=emb_matrix.shape[0], output_dim=emb_matrix[0].shape[0], input_length=tf_dim,
                            weights=[emb_matrix], trainable=False)(tf_inputs)
         tf_bilstm = Bidirectional(LSTM(nunits1, activation='sigmoid', recurrent_dropout=0.2, recurrent_activation='sigmoid',
-                                       return_sequences=False))(tf_emb)
+                                       return_sequences=True))(tf_emb)
     if audio:
         af_inputs = Input(shape=af_dim, name='af_inputs')
         af_lstm = LSTM(nunits2, return_sequences=False)(af_inputs)
