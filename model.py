@@ -105,7 +105,7 @@ if __name__ == '__main__':
         'lr': 0.1
     }
 
-    at_model = build_model(parameters, embedding_matrix, n_labels, text=False, audio=True)
+    at_model = build_model(parameters, embedding_matrix, n_labels, text=True, audio=True)
 
     at_model.fit(
         {'tf_inputs': tf_train, 'af_inputs': af_train},
