@@ -26,6 +26,8 @@ def build_model(params, emb_matrix, audio=True, text=True):
     tf_emb = None
     tf_bilstm = None
     af_lstm = None
+    merged = None
+    model = None
 
     if text:
         tf_inputs = Input(shape=(tf_dim,), name='tf_inputs')
@@ -37,16 +39,27 @@ def build_model(params, emb_matrix, audio=True, text=True):
         af_inputs = Input(shape=af_dim, name='af_inputs')
         af_lstm = LSTM(nunits2, return_sequences=False)(af_inputs)
 
-    aftf_conc = concatenate([tf_bilstm, af_lstm])
-    aftf_conc = Dropout(dropout)(aftf_conc)
+    if text and audio:
+        merged = concatenate([tf_bilstm, af_lstm])
+        merged = Dropout(dropout)(merged)
+    elif text:
+        merged = tf_bilstm
+    elif audio:
+        merged = af_lstm
 
     #f_is = Dense(1)(aftf_conc)
     #f_war = Dense(1)(aftf_conc)
     #f_eoi = Dense(1)(aftf_conc)
     #f_rel = Dense(1)(aftf_conc)
-    f_ee = Dense(1)(aftf_conc)
+    f_ee = Dense(1)(merged)
 
-    model = Model(inputs=[tf_inputs, af_inputs], outputs=[f_ee], name='ee_full_bimodal')
+    if text and audio:
+        model = Model(inputs=[tf_inputs, af_inputs], outputs=[f_ee], name='ee_full_bimodal')
+    elif text:
+        model = Model(inputs=[tf_inputs], outputs=[f_ee], name='ee_full_bimodal')
+    elif audio:
+        model = Model(inputs=[af_inputs], outputs=[f_ee], name='ee_full_bimodal')
+
     model.compile(optimizer=Adam(lr=lr), loss='categorical_crossentropy')
 
     model.summary()
