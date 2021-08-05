@@ -2,9 +2,9 @@ import logging
 
 import matplotlib.pyplot as plt
 
-from keras.layers import Bidirectional, Dense, Embedding, Dropout, Input, LSTM, concatenate
-from keras.models import Model
-from keras.optimizers import Adam, SGD
+from tensorflow.keras.layers import Bidirectional, Dense, Embedding, Dropout, Input, LSTM, concatenate
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam, SGD
 from utils import prepare_sequential_features, load_sequential_features
 from utils import SEED, LABELS, MAX_LENGTH
 from sklearn.model_selection import train_test_split
@@ -76,10 +76,10 @@ if __name__ == '__main__':
     pred_label = 't2_ee'
     n_labels = 3  # this will be the "theoretical" number of possible classes (e.g. for t2_ee: Low, High, Borderline = 3)
 
-    # tf, af, y, emb_matrix = prepare_sequential_features('~/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=False, save=False)
-    tf, af, y, embedding_matrix = load_sequential_features()
+    tf, af, y, emb_matrix = prepare_sequential_features('~/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=False, save=True)
+    # tf, af, y, embedding_matrix = load_sequential_features()
 
-    assert len(tf) == len(af) == len(y)
+    assert len(tf) == len(af)
 
     # 60-20-20 split
     tf_train, tf_test, af_train, af_test, y_train, y_test = train_test_split(tf, af, y, test_size=0.2, random_state=SEED)

@@ -8,9 +8,9 @@ import pandas as pd
 import re
 import spacy
 
-from keras.models import Sequential
-from keras.preprocessing.sequence import pad_sequences
-from keras.optimizers import Adam
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.optimizers import Adam
 
 from gensim.scripts.glove2word2vec import glove2word2vec
 from gensim.models.keyedvectors import KeyedVectors
