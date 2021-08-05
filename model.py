@@ -79,6 +79,8 @@ if __name__ == '__main__':
     # tf, af, y, emb_matrix = prepare_sequential_features('~/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=False, save=True)
     tf, af, y, embedding_matrix = load_sequential_features()
 
+    y = y[pred_label]  # select only the label we want to predict
+
     assert len(tf) == len(af)
 
     # 60-20-20 split
