@@ -222,9 +222,11 @@ def prepare_sequential_features(emb_path, sentence_tokenize=False, test=False, s
     logging.info('Preparing labels...')
 
     lb = LabelBinarizer()
+    labels = {}
 
     for label in LABELS:
-        df_data[label] = lb.fit_transform(df_data[label])
+        # df_data[label] = lb.fit_transform(df_data[label])
+        labels[label] = lb.fit_transform(df_data[label])
 
     logging.info('Preparing features...')
 
@@ -241,10 +243,12 @@ def prepare_sequential_features(emb_path, sentence_tokenize=False, test=False, s
     if save:
         pd.to_pickle(x, 'data/tf_embeddings.pickle')
         pd.to_pickle(audio_features_padded, 'data/af_padded.pickle')
-        pd.to_pickle(df_data[LABELS], 'data/labels_binarized.pickle')
+        # pd.to_pickle(df_data[LABELS], 'data/labels_binarized.pickle')
+        pd.to_pickle(labels, 'data/labels_binarized.pickle')
         pd.to_pickle(embedding_matrix, 'data/embedding_matrix.pickle')
 
-    return x, audio_features_padded, df_data[LABELS], embedding_matrix
+    # return x, audio_features_padded, df_data[LABELS], embedding_matrix
+    return x, audio_features_padded, labels, embedding_matrix
 
 
 def process_token(token):
