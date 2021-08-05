@@ -81,9 +81,6 @@ if __name__ == '__main__':
 
     y = y[pred_label]  # select only the label we want to predict
     
-    from pprint import pprint
-    pprint(y)
-
     assert len(tf) == len(af) == len(y)
 
     # 60-20-20 split
@@ -108,7 +105,7 @@ if __name__ == '__main__':
         'lr': 0.1
     }
 
-    at_model = build_model(parameters, embedding_matrix, n_labels, text=True, audio=False)
+    at_model = build_model(parameters, embedding_matrix, n_labels, text=False, audio=True)
 
     at_model.fit(
         {'tf_inputs': tf_train, 'af_inputs': af_train},
