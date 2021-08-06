@@ -21,9 +21,9 @@ def build_model(params, emb_matrix, n_labels, audio=True, text=True):
     logging.info('-- Loading text:' + str(text))
 
     tf_dim = params['text_feature_dim']
-    af_dim = 2 * tf_dim
+    af_dim = params['audio_feature_dim']
     nunits1 = params['text_lstm_nunits']
-    nunits2 = params['audio_lstm_nunits']
+    nunits2 = 2 * nunits1
     dropout = params['dropout']
     lr = params['lr']
 
@@ -84,6 +84,7 @@ if __name__ == '__main__':
     tf_train, tf_test, af_train, af_test, y_train, y_test = train_test_split(tf, af, y, test_size=0.2, random_state=SEED)
     # tf_dev, tf_test, af_dev, af_test, y_test, y_dev = train_test_split(X_train, y_train, test_size=0.25, random_state=SEED)
 
+    """
     # parameters to tune. text_feature_dim and audio_feature_dim are constant, but need to be passed to build_model
     param_grid = {
         'text_feature_dim': [MAX_LENGTH],
@@ -94,11 +95,24 @@ if __name__ == '__main__':
         'epochs': [10, 25, 50]
     }
 
-    cv = KFold(n_splits=3, random_state=33, shuffle=True)
+    cv = KFold(n_splits=3, random_state=SEED, shuffle=True)
     kgs = KerasGridSearchCV(build_model, param_grid, monitor='val_loss', cv=cv, greater_is_better=False)
-    kgs.search({'tf_inputs': tf_train, 'af_inputs': af_train}, {'dense': y_train})
 
+    print(type(tf_train), type(af_train), type(y_train))
+    print(tf_train.shape, af_train.shape, y_train.shape)
+
+    # kgs.search({'tf_inputs': tf_train, 'af_inputs': af_train}, {'outputs': y_train})
+    kgs.search([tf_train, af_train], y_train)
     """
+
+    param_grid = {
+        'text_feature_dim': MAX_LENGTH,
+        'audio_feature_dim': af[0].shape,
+        'text_lstm_nunits': 150,
+        'dropout': 0.2,
+        'lr': 0.001,
+    }
+
     at_model = build_model(param_grid, embedding_matrix, n_labels, text=True, audio=True)
 
     at_model.fit(
@@ -108,6 +122,7 @@ if __name__ == '__main__':
         batch_size=32
     )
 
+    """
     models = {}
     m = build_model(emb_matrix)
     for label in LABELS:
