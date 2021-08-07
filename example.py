@@ -49,7 +49,7 @@ def build_model(params, emb_matrix, n_labels):
 
     return model
 
-n_labels = 2
+n_labels = 1
 X1 = np.random.randint(1000, size=(100, 100))
 X2 = np.random.rand(100, 100, 13)
 y = tf.keras.utils.to_categorical(np.random.randint(n_labels, size=100))
@@ -61,7 +61,7 @@ parameters = {'lstm_nunits': 300,
 
 print(type(X1), type(X2), type(y))
 
-model = build_model(parameters, embedding_matrix, 1)
+model = build_model(parameters, embedding_matrix, n_labels)
 
 model.fit({'text_inputs': X1, 'audio_inputs': X2}, {'outputs': y}, epochs=1)
 
