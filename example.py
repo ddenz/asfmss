@@ -11,6 +11,7 @@ tensorflow                2.4.1            py38h578d9bd_0    conda-forge
 """
 
 import numpy as np
+import tensorflow as tf
 
 from kerashypetune import KerasGridSearchCV
 from tensorflow.keras.layers import Bidirectional, Dense, Embedding, Dropout, Input, LSTM, concatenate
@@ -40,7 +41,7 @@ def build_model(params, emb_matrix, n_labels):
     af_lstm = LSTM(nunits2, return_sequences=False)(audio_inputs)
     merged = concatenate([tf_bilstm, af_lstm])
     merged = Dropout(dropout)(merged)
-    output = Dense(n_labels, activation='softmax', name='output')(merged)
+    output = Dense(n_labels, activation='softmax', name='outputs')(merged)
     model = Model(inputs=[text_inputs, audio_inputs], outputs=[output])
     model.compile(optimizer=Adam(lr=lr), loss='categorical_crossentropy')
 
@@ -48,21 +49,21 @@ def build_model(params, emb_matrix, n_labels):
 
     return model
 
-
-tf = np.random.randint(1000, size=(100, 100))
-af = np.random.rand(100, 100, 13)
-y = np.random.randint(2, size=100)
+n_labels = 2
+X1 = np.random.randint(1000, size=(100, 100))
+X2 = np.random.rand(100, 100, 13)
+y = tf.keras.utils.to_categorical(np.random.randint(n_labels, size=100))
 embedding_matrix = np.random.rand(1000, 100)
 
 parameters = {'lstm_nunits': 300,
               'dropout': 0.2,
               'lr': 0.01}
 
-print(type(tf), type(af), type(y))
+print(type(X1), type(X2), type(y))
 
 model = build_model(parameters, embedding_matrix, 1)
 
-model.fit({'text_inputs': tf, 'audio_inputs': af}, {'output': y}, epochs=1)
+model.fit({'text_inputs': X1, 'audio_inputs': X2}, {'output': y}, epochs=1)
 
 param_grid = {
     'lstm_nunits': [25, 50, 150],
@@ -71,25 +72,9 @@ param_grid = {
     'epochs': [10, 25, 50]
 }
 
-hypermodel = lambda x: build_model(x, emb_matrix=embedding_matrix, n_labels=1)
+hypermodel = lambda x: build_model(x, emb_matrix=embedding_matrix, n_labels=n_labels)
 
 cv = KFold(n_splits=3, random_state=42, shuffle=True)
 kgs = KerasGridSearchCV(hypermodel, param_grid, monitor='val_loss', cv=cv, greater_is_better=False)
 
-kgs.search({'text_inputs': tf, 'audio_inputs': af}, {'outputs': y})
-"""
-Traceback (most recent call last):
-  File "example.py", line 78, in <module>
-    kgs.search({'text_inputs': tf, 'audio_inputs': af}, {'outputs': y})
-  File "/users/k1773308/anaconda3/envs/asfmss/lib/python3.8/site-packages/kerashypetune/kerashypetune.py", line 704, in search
-    self._search(x=x, y=y,
-  File "/users/k1773308/anaconda3/envs/asfmss/lib/python3.8/site-packages/kerashypetune/kerashypetune.py", line 503, in _search
-    for fold, (train_id, val_id) in enumerate(self.cv.split(x, y, groups)):
-  File "/users/k1773308/anaconda3/envs/asfmss/lib/python3.8/site-packages/sklearn/model_selection/_split.py", line 324, in split
-    X, y, groups = indexable(X, y, groups)
-  File "/users/k1773308/anaconda3/envs/asfmss/lib/python3.8/site-packages/sklearn/utils/validation.py", line 356, in indexable
-    check_consistent_length(*result)
-  File "/users/k1773308/anaconda3/envs/asfmss/lib/python3.8/site-packages/sklearn/utils/validation.py", line 319, in check_consistent_length
-    raise ValueError("Found input variables with inconsistent numbers of"
-ValueError: Found input variables with inconsistent numbers of samples: [2, 1]
-"""
+kgs.search({'text_inputs': X1, 'audio_inputs': X2}, {'outputs': y})
