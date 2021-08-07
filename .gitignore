@@ -4,3 +4,7 @@
 /.ipynb_checkpoints/
 
 *.DS_Store
+/data/af_padded.pickle
+/data/embedding_matrix.pickle
+/data/labels_binarized.pickle
+/data/tf_embeddings.pickle
