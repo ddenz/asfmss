@@ -71,8 +71,10 @@ param_grid = {
     'epochs': [10, 25, 50]
 }
 
+hypermodel = lambda x: build_model(x, emb_matrix=embedding_matrix, n_labels=1)
+
 cv = KFold(n_splits=3, random_state=42, shuffle=True)
-kgs = KerasGridSearchCV(build_model, param_grid, monitor='val_loss', cv=cv, greater_is_better=False)
+kgs = KerasGridSearchCV(hypermodel, param_grid, monitor='val_loss', cv=cv, greater_is_better=False)
 
 kgs.search({'text_inputs': tf, 'audio_inputs': af}, {'outputs': y})
 """
