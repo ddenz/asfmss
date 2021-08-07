@@ -84,7 +84,6 @@ if __name__ == '__main__':
     tf_train, tf_test, af_train, af_test, y_train, y_test = train_test_split(tf, af, y, test_size=0.2, random_state=SEED)
     # tf_dev, tf_test, af_dev, af_test, y_test, y_dev = train_test_split(X_train, y_train, test_size=0.25, random_state=SEED)
 
-    """
     # parameters to tune. text_feature_dim and audio_feature_dim are constant, but need to be passed to build_model
     param_grid = {
         'text_feature_dim': [MAX_LENGTH],
@@ -103,8 +102,8 @@ if __name__ == '__main__':
 
     # kgs.search({'tf_inputs': tf_train, 'af_inputs': af_train}, {'outputs': y_train})
     kgs.search([tf_train, af_train], y_train)
-    """
 
+    """
     param_grid = {
         'text_feature_dim': MAX_LENGTH,
         'audio_feature_dim': af[0].shape,
@@ -122,7 +121,6 @@ if __name__ == '__main__':
         batch_size=32
     )
 
-    """
     models = {}
     m = build_model(emb_matrix)
     for label in LABELS:
