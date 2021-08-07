@@ -63,7 +63,7 @@ print(type(X1), type(X2), type(y))
 
 model = build_model(parameters, embedding_matrix, 1)
 
-model.fit({'text_inputs': X1, 'audio_inputs': X2}, {'output': y}, epochs=1)
+model.fit({'text_inputs': X1, 'audio_inputs': X2}, {'outputs': y}, epochs=1)
 
 param_grid = {
     'lstm_nunits': [25, 50, 150],
