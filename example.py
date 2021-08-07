@@ -45,8 +45,6 @@ def build_model(params, emb_matrix, n_labels):
     model = Model(inputs=[text_inputs, audio_inputs], outputs=[output])
     model.compile(optimizer=Adam(lr=lr), loss='categorical_crossentropy')
 
-    model.summary()
-
     return model
 
 n_labels = 1
