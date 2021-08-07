@@ -53,18 +53,16 @@ def build_model(params, emb_matrix, n_labels, audio=True, text=True):
     elif audio:
         merged = af_lstm
 
-    output = Dense(n_labels, activation='softmax')(merged)
+    output = Dense(n_labels, activation='softmax', name='output')(merged)
 
     if text and audio:
-        model = Model(inputs=[tf_inputs, af_inputs], outputs=[output], name='ee_full_bimodal')
+        model = Model(inputs=[tf_inputs, af_inputs], outputs=[output], name='ee_bimodal')
     elif text:
-        model = Model(inputs=[tf_inputs], outputs=[output], name='ee_full_bimodal')
+        model = Model(inputs=[tf_inputs], outputs=[output], name='ee_text')
     elif audio:
-        model = Model(inputs=[af_inputs], outputs=[output], name='ee_full_bimodal')
+        model = Model(inputs=[af_inputs], outputs=[output], name='ee_audio')
 
     model.compile(optimizer=Adam(lr=lr), loss='categorical_crossentropy')
-
-    model.summary()
 
     return model
 
@@ -95,13 +93,12 @@ if __name__ == '__main__':
     }
 
     cv = KFold(n_splits=3, random_state=SEED, shuffle=True)
-    kgs = KerasGridSearchCV(build_model, param_grid, monitor='val_loss', cv=cv, greater_is_better=False)
-
-    print(type(tf_train), type(af_train), type(y_train))
-    print(tf_train.shape, af_train.shape, y_train.shape)
-
-    # kgs.search({'tf_inputs': tf_train, 'af_inputs': af_train}, {'outputs': y_train})
-    kgs.search([tf_train, af_train], y_train)
+    kgs = KerasGridSearchCV(lambda x: build_model(x, emb_matrix=embedding_matrix, n_labels=n_labels, audio=True, text=True),
+                            param_grid,
+                            monitor='val_loss',
+                            cv=cv,
+                            greater_is_better=False)
+    kgs.search({'tf_inputs': tf_train, 'af_inputs': af_train}, {'output': y_train})
 
     """
     param_grid = {
