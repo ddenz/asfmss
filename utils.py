@@ -139,8 +139,10 @@ def load_data(test=False):
 
 def load_embeddings(emb_path):
     model = None
-    w2v_path = os.path.splitext(emb_path)[0] + '_w2v.txt'
-    glove2word2vec(glove_input_file=emb_path, word2vec_output_file=w2v_path)
+    w2v_path = emb_path
+    if 'glove' in emb_path:
+        w2v_path = os.path.splitext(emb_path)[0] + '_w2v.txt'
+        glove2word2vec(glove_input_file=emb_path, word2vec_output_file=w2v_path)
     model = KeyedVectors.load_word2vec_format(w2v_path, binary=False)
     return model
 
@@ -274,6 +276,7 @@ def spacy_tokenize(doc, sentence_tokenize=False):
 
 def prepare_sequential_audio(feature_type='mfcc'):
     return [pd.read_pickle(f) for f in glob.glob('./data/*mfcc.pickle')]
+
 
 """
 if __name__ == '__main__':
