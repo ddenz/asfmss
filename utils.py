@@ -140,7 +140,7 @@ def load_data(test=False):
 def load_embeddings(emb_path):
     model = None
     w2v_path = emb_path
-    if 'glove' in emb_path:
+    if 'glove.6B' in emb_path:
         w2v_path = os.path.splitext(emb_path)[0] + '_w2v.txt'
         glove2word2vec(glove_input_file=emb_path, word2vec_output_file=w2v_path)
     model = KeyedVectors.load_word2vec_format(w2v_path, binary=False)
@@ -153,31 +153,34 @@ def load_audio_features(idnum, ftype='mfcc', dim=400, test=False):
     else:
         audio_features = pd.read_pickle(FEATS_DIR + '/Q' + str(idnum) + '.wav_' + ftype + '.pickle')
     if dim >= 0:
+        logging.info('-- Truncating audio features to length ' + str(dim))
         return audio_features[:dim]
     return audio_features
 
 
-def load_sequential_features(audio=True, text=True):
+def load_sequential_features(audio_type=None, text_type=None):
     """
     Load from disk to avoid preprocessing.
-    :param audio: load audio features
-    :param text: load text features
+    :param audio_type: type of audio features to load (e.g. mfcc)
+    :param text_type: type of text embedding features to load (e.g. gensim-csg-gigaword-300)
     :return: word embeddings, padded audio feature matrices, target labels, word embedding matrix
     """
     logging.info('Loading pre-calculated features from disk:')
+    if audio_type is None and text_type is None:
+        raise Exception('-- Unspecified feature types. Choose audio and text inputs.')
     t = None
     a = None
-    if text:
-        tp = 'data/tf_embeddings.pickle'
+    e = None
+    if text_type is not None:
+        tp = 'data/tf_embeddings_' + text_type + '.pickle'
         logging.info('-- text (' + tp + ')')
         t = pd.read_pickle(tp)
-    if audio:
-        ap = 'data/af_padded.pickle'
+        e = pd.read_pickle('data/embedding_matrix_' + text_type + '.pickle')
+    if audio_type is not None:
+        ap = 'data/af_padded_' + audio_type + '.pickle'
         logging.info('-- audio (' + ap + ')')
         a = pd.read_pickle(ap)
     y = pd.read_pickle('data/labels_binarized.pickle')
-    e = pd.read_pickle('data/embedding_matrix.pickle')
-
     return t, a, y, e
 
 
@@ -243,11 +246,12 @@ def prepare_sequential_features(emb_path, sentence_tokenize=False, test=False, s
     audio_features_padded = np.asarray(audio_features_padded)
 
     if save:
-        pd.to_pickle(x, 'data/tf_embeddings.pickle')
-        pd.to_pickle(audio_features_padded, 'data/af_padded.pickle')
+        emb_name = os.path.basename(os.path.dirname(emb_path))
+        pd.to_pickle(x, 'data/tf_embeddings_' + emb_name + '.pickle')
+        pd.to_pickle(audio_features_padded, 'data/af_padded_mfcc.pickle')
         # pd.to_pickle(df_data[LABELS], 'data/labels_binarized.pickle')
         pd.to_pickle(labels, 'data/labels_binarized.pickle')
-        pd.to_pickle(embedding_matrix, 'data/embedding_matrix.pickle')
+        pd.to_pickle(embedding_matrix, 'data/embedding_matrix_' + emb_name + '.pickle')
 
     # return x, audio_features_padded, df_data[LABELS], embedding_matrix
     return x, audio_features_padded, labels, embedding_matrix
