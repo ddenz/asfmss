@@ -11,15 +11,15 @@ from sklearn.model_selection import KFold, train_test_split
 OUTPUT_DIR = './output'
 
 
-class Attention(tf.keras.Model):
+class Attention(Model):
     """
     From https://matthewmcateer.me/blog/getting-started-with-attention-for-classification/
     """
     def __init__(self, units):
         super(Attention, self).__init__()
-        self.W1 = tf.keras.layers.Dense(units)
-        self.W2 = tf.keras.layers.Dense(units)
-        self.V = tf.keras.layers.Dense(1)
+        self.W1 = Dense(units)
+        self.W2 = Dense(units)
+        self.V = Dense(1)
 
     def call(self, features, hidden):
         # hidden shape == (batch_size, hidden size)
