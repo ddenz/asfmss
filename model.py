@@ -157,3 +157,5 @@ if __name__ == '__main__':
     m = build_text_model(params, embedding_matrix, n_labels)
     print(m.summary())
     m.fit(tf_train, y_train)
+    w = m.get_layer('attention').get_weights()
+    print(w)
