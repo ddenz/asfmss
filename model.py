@@ -110,8 +110,8 @@ def build_text_model(params, emb_matrix, n_labels):
                                    return_sequences=True))(tf_emb)
     (lstm, forward_h, forward_c, backward_h, backward_c) = Bidirectional(
         LSTM(nunits1, return_sequences=True, return_state=True), name="bi_lstm_1")(tf_bilstm)
-    state_h = concatenate()([forward_h, backward_h])
-    state_c = concatenate()([forward_c, backward_c])
+    state_h = concatenate([forward_h, backward_h])
+    state_c = concatenate([forward_c, backward_c])
     context_vector, attention_weights = Attention(10)(lstm, state_h)
     dense1 = Dense(20, activation="relu")(context_vector)
     dropout = Dropout(0.05)(dense1)
