@@ -99,18 +99,9 @@ def build_text_model(params, emb_matrix, n_labels):
     logging.info('-- Loading text')
 
     tf_dim = params['text_feature_dim']
-    af_dim = params['audio_feature_dim']
     nunits1 = params['text_lstm_nunits']
     dropout = params['dropout']
     lr = params['lr']
-
-    tf_inputs = None
-    af_inputs = None
-    tf_emb = None
-    tf_bilstm = None
-    af_lstm = None
-    merged = None
-    model = None
 
     tf_inputs = Input(shape=(tf_dim,), name='tf_inputs')
     tf_emb = Embedding(input_dim=emb_matrix.shape[0], output_dim=emb_matrix[0].shape[0], input_length=tf_dim,
@@ -137,23 +128,25 @@ if __name__ == '__main__':
     n_labels = 3  # this is the "theoretical" number of possible classes (e.g. for t2_ee: Low, High, Borderline = 3)
 
     # tf, af, y, emb_matrix = prepare_sequential_features('~/gensim-data/glove.6B/glove.6B.300d.txt', sentence_tokenize=False, test=False, save=True)
-    tf, af, y, embedding_matrix = load_sequential_features(audio_type='mfcc', text_type='glove.6B')
+    # tf, af, y, embedding_matrix = load_sequential_features(audio_type='mfcc', text_type='glove.6B')
+    tf, _, y, embedding_matrix = load_sequential_features(audio_type=None, text_type='glove.6B')
 
     y = y[pred_label]  # select only the label we want to predict
     
-    assert len(tf) == len(af) == len(y)
+    #assert len(tf) == len(af) == len(y)
 
     # 60-20-20 split
-    tf_train, tf_test, af_train, af_test, y_train, y_test = train_test_split(tf, af, y, test_size=0.2, random_state=SEED)
+    # tf_train, tf_test, af_train, af_test, y_train, y_test = train_test_split(tf, af, y, test_size=0.2, random_state=SEED)
     # tf_dev, tf_test, af_dev, af_test, y_test, y_dev = train_test_split(X_train, y_train, test_size=0.25, random_state=SEED)
+    tf_train, tf_test, y_train, y_test = train_test_split(tf, y, test_size=0.2, random_state=SEED)
 
     print(tf_train.shape)
-    print(af_train.shape)
+    # print(af_train.shape)
     print(y_train.shape)
 
     params = {
         'text_feature_dim': MAX_LENGTH,
-        'audio_feature_dim': af[0].shape,
+        'audio_feature_dim': None,
         'text_lstm_nunits': 150,
         'dropout': 0.2,
         'lr': 0.001,
